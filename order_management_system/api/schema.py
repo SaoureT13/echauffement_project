@@ -50,7 +50,7 @@ class OrderSchemaIn(ModelSchema):
         model = Order
         fields = "__all__"
         fields_optional = ["status"]
-        exclude = ["id", "registration_date"]
+        exclude = ["id", "registration_date", "created_at", "updated_at"]
 
 
 class OrderDetailsSchemaIn(ModelSchema):

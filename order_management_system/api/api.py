@@ -5,34 +5,34 @@ from datetime import datetime
 api = NinjaAPI()
 
 
-# @api.get("/customers", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
-# def retrieve_customers(request):
-#     try:
-#         customers = Customer.objects.all()
-#         for customer in customers:
-#             customer.count_orders = customer.orders.count()
+@api.get("/customers", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
+def retrieve_customers(request):
+    try:
+        customers = Customer.objects.all()
+        for customer in customers:
+            customer.count_orders = customer.orders.count()
 
-#         return 200, {
-#             "code": 200,
-#             "description": "Customers succesfully retrieve",
-#             "data": customers,
-#         }
-#     except Exception as e:
-#         return 400, {"code": 400, "description": str(e)}
+        return 200, {
+            "code": 200,
+            "description": "Customers succesfully retrieve",
+            "data": customers,
+        }
+    except Exception as e:
+        return 400, {"code": 400, "description": str(e)}
 
 
-# @api.get("/products", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
-# def retrieve_products(request):
-#     try:
-#         products = Product.objects.all()
+@api.get("/products", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
+def retrieve_products(request):
+    try:
+        products = Product.objects.all()
 
-#         return 200, {
-#             "code": 200,
-#             "description": "Products succesfully retrieve",
-#             "data": products,
-#         }
-#     except Exception as e:
-#         return 400, {"code": 400, "description": str(e)}
+        return 200, {
+            "code": 200,
+            "description": "Products succesfully retrieve",
+            "data": products,
+        }
+    except Exception as e:
+        return 400, {"code": 400, "description": str(e)}
 
 
 @api.post("/customers", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
@@ -54,6 +54,8 @@ def create_customer(request, payload: CustomerSchemaIn):
                 "email": customer.email,
                 "address": customer.address,
                 "registration_date": customer.registration_date,
+                "created_at": customer.created_at,
+                "updated_at": customer.updated_at,
             },
         }
     except Exception as e:
