@@ -82,12 +82,12 @@ WSGI_APPLICATION = "order_management_system.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": "order_management_system_db",
-        "USER": "root",
+        "USER": "teddy_admin",
         "PASSWORD": "password",
         "HOST": "127.0.0.1",
-        "PORT": "3306"
+        "PORT": "5432"
     }
 }
 
