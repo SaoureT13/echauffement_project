@@ -7,10 +7,11 @@ class CustomerSchemaIn(ModelSchema):
 
     class Meta:
         model = Customer
-        fields = ["str_cust_name", "str_cust_email", "str_cust_adress"]
+        fields = ["name", "email", "address"]
 
 
 class CustomerSchemaOut(ModelSchema):
+    count_orders: Optional[int] = None
 
     class Meta:
         model = Customer
@@ -21,7 +22,7 @@ class ProductSchemaIn(ModelSchema):
     class Meta:
         model = Product
         fields = "__all__"
-        exclude = ["int_pro_pk"]
+        exclude = ["id"]
 
 
 class ProductSchemaOut(ModelSchema):
@@ -37,18 +38,19 @@ class OrderSchemaOut(ModelSchema):
 
 
 class ProductItem(Schema):
-    int_pro_pk: int
-    int_pro_qty: int
+    id: int
+    quantity: int
 
 
 class OrderSchemaIn(ModelSchema):
-    product_ids: List[ProductItem]
-    int_customer_fk: int
+    product_items: List[ProductItem]
+    customer_id: int
 
     class Meta:
         model = Order
         fields = "__all__"
-        exclude = ["int_order_pk"]
+        fields_optional = ["status"]
+        exclude = ["id", "registration_date"]
 
 
 class OrderDetailsSchemaIn(ModelSchema):
@@ -67,7 +69,13 @@ class OrderDetailsSchemaOut(ModelSchema):
 class SuccessResponseSchema(Schema):
     code: int
     description: str
-    data: Optional[CustomerSchemaOut | OrderSchemaOut] = None
+    data: Optional[
+        CustomerSchemaOut
+        | OrderSchemaOut
+        | List[int]
+        | List[CustomerSchemaOut]
+        | List[ProductSchemaOut]
+    ] = None
 
 
 class ErrorResponseSchema(Schema):

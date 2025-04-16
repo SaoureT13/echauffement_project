@@ -5,27 +5,55 @@ from datetime import datetime
 api = NinjaAPI()
 
 
+# @api.get("/customers", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
+# def retrieve_customers(request):
+#     try:
+#         customers = Customer.objects.all()
+#         for customer in customers:
+#             customer.count_orders = customer.orders.count()
+
+#         return 200, {
+#             "code": 200,
+#             "description": "Customers succesfully retrieve",
+#             "data": customers,
+#         }
+#     except Exception as e:
+#         return 400, {"code": 400, "description": str(e)}
+
+
+# @api.get("/products", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
+# def retrieve_products(request):
+#     try:
+#         products = Product.objects.all()
+
+#         return 200, {
+#             "code": 200,
+#             "description": "Products succesfully retrieve",
+#             "data": products,
+#         }
+#     except Exception as e:
+#         return 400, {"code": 400, "description": str(e)}
+
+
 @api.post("/customers", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
 def create_customer(request, payload: CustomerSchemaIn):
     try:
         customer = Customer.objects.create(
-            str_cust_name=payload.str_cust_name,
-            str_cust_email=payload.str_cust_email,
-            str_cust_adress=payload.str_cust_adress,
-            dt_cust_dt_regist=datetime.now(),
+            name=payload.name,
+            email=payload.email,
+            address=payload.address,
+            registration_date=datetime.now(),
         )
 
         return 200, {
             "code": 200,
-            "description": "Customer succesfully created",
+            "description": "Customer successfully created",
             "data": {
-                "int_cust_pk": customer.int_cust_pk,
-                "str_cust_name": customer.str_cust_name,
-                "str_cust_email": customer.str_cust_email,
-                "str_cust_adress": customer.str_cust_adress,
-                "dt_cust_dt_regist": customer.dt_cust_dt_regist,
-                "dt_cust_created_at": customer.dt_cust_created_at,
-                "dt_cust_updated_at": customer.dt_cust_updated_at,
+                "id": customer.id,
+                "name": customer.name,
+                "email": customer.email,
+                "address": customer.address,
+                "registration_date": customer.registration_date,
             },
         }
     except Exception as e:
@@ -42,29 +70,86 @@ def create_customer(request, payload: CustomerSchemaIn):
 )
 def create_order(request, payload: OrderSchemaIn):
     try:
-        customer = Customer.objects.get(pk=payload.int_cust_pk)
+        customer = Customer.objects.get(pk=payload.customer_id)
         order = Order.objects.create(
-            dt_order_dt_regist=datetime.now(),
-            str_order_status=payload.str_order_status,
-            int_customer_fk=customer.int_customer_fk,
+            registration_date=datetime.now(),
+            customer_id=customer.id,
         )
 
         products_that_not_exist = []
 
-        for product_id in payload.product_ids:
-            product = Product.objects.filter(int_pro_pk=product_id["int_pro_pk"])
-            if product is not None:
+        for product_item in payload.product_items:
+            product = Product.objects.filter(id=product_item.id).first()
+            if product is not None and product.stock - product_item.quantity >= 0:
                 order_details = OrderDetails.objects.create(
-                    int_pro_fk=product.int_pro_pk,
-                    int_order_fk=order.int_order_pk,
-                    int_pro_qty=payload.product_id["int_pro_qty"],
-                    dbl_inutary_price=product.dbl_pro_price,
+                    product_id=product.id,
+                    order_id=order.id,
+                    quantity=product_item.quantity,
+                    unit_price=product.price,
                 )
+                product.stock -= product_item.quantity
+                product.save()
             else:
-                products_that_not_exist.append(product_id)
+                products_that_not_exist.append(product_item.id)
 
-        return 200, {"code": 200, "description": "Order succesfully registered"}
+        # if products_that_not_exist:
+        #     return 400, {
+        #         "code": 400,
+        #         "description": "Some products do not exist or have insufficient stock",
+        #         "missing_products": products_that_not_exist,
+        #     }
+
+        return 200, {
+            "code": 200,
+            "description": "Order successfully registered",
+        }
     except Customer.DoesNotExist as e:
-        return 404, {"code": 400, "description": str(e)}
+        return 404, {"code": 404, "description": str(e)}
+    except Exception as e:
+        return 400, {"code": 400, "description": str(e)}
+
+
+@api.delete(
+    "/customers/{id}",
+    response={
+        200: SuccessResponseSchema,
+        400: ErrorResponseSchema,
+        404: ErrorResponseSchema,
+    },
+)
+def delete_customer(request, id: int):
+    try:
+        customer = Customer.objects.get(pk=id)
+        customer.delete()
+
+        return 200, {
+            "code": 200,
+            "description": "Customer successfully deleted",
+        }
+    except Customer.DoesNotExist as e:
+        return 404, {"code": 404, "description": str(e)}
+    except Exception as e:
+        return 400, {"code": 400, "description": str(e)}
+
+
+@api.delete(
+    "/orders/{id}",
+    response={
+        200: SuccessResponseSchema,
+        400: ErrorResponseSchema,
+        404: ErrorResponseSchema,
+    },
+)
+def delete_order(request, id: int):
+    try:
+        order = Order.objects.get(pk=id)
+        order.delete()
+
+        return 200, {
+            "code": 200,
+            "description": "Order successfully deleted",
+        }
+    except Customer.DoesNotExist as e:
+        return 404, {"code": 404, "description": str(e)}
     except Exception as e:
         return 400, {"code": 400, "description": str(e)}
