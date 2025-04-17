@@ -44,13 +44,12 @@ class ProductItem(Schema):
 
 class OrderSchemaIn(ModelSchema):
     product_items: List[ProductItem]
-    customer_id: int
 
     class Meta:
         model = Order
         fields = "__all__"
         fields_optional = ["status"]
-        exclude = ["id", "registration_date", "created_at", "updated_at"]
+        exclude = ["id", "registration_date", "created_at", "updated_at", "customer"]
 
 
 class OrderDetailsSchemaIn(ModelSchema):

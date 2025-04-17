@@ -117,116 +117,42 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.Auth_groupScalarFieldEnum = {
-  id: 'id',
-  name: 'name'
-};
-
-exports.Prisma.Auth_group_permissionsScalarFieldEnum = {
-  id: 'id',
-  group_id: 'group_id',
-  permission_id: 'permission_id'
-};
-
-exports.Prisma.Auth_permissionScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  content_type_id: 'content_type_id',
-  codename: 'codename'
-};
-
-exports.Prisma.Auth_userScalarFieldEnum = {
-  id: 'id',
-  password: 'password',
-  last_login: 'last_login',
-  is_superuser: 'is_superuser',
-  username: 'username',
-  first_name: 'first_name',
-  last_name: 'last_name',
-  email: 'email',
-  is_staff: 'is_staff',
-  is_active: 'is_active',
-  date_joined: 'date_joined'
-};
-
-exports.Prisma.Auth_user_groupsScalarFieldEnum = {
-  id: 'id',
-  user_id: 'user_id',
-  group_id: 'group_id'
-};
-
-exports.Prisma.Auth_user_user_permissionsScalarFieldEnum = {
-  id: 'id',
-  user_id: 'user_id',
-  permission_id: 'permission_id'
-};
-
-exports.Prisma.CustomersScalarFieldEnum = {
+exports.Prisma.CustomerScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
   address: 'address',
-  registration_date: 'registration_date',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  registrationDate: 'registrationDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.Django_admin_logScalarFieldEnum = {
-  id: 'id',
-  action_time: 'action_time',
-  object_id: 'object_id',
-  object_repr: 'object_repr',
-  action_flag: 'action_flag',
-  change_message: 'change_message',
-  content_type_id: 'content_type_id',
-  user_id: 'user_id'
-};
-
-exports.Prisma.Django_content_typeScalarFieldEnum = {
-  id: 'id',
-  app_label: 'app_label',
-  model: 'model'
-};
-
-exports.Prisma.Django_migrationsScalarFieldEnum = {
-  id: 'id',
-  app: 'app',
-  name: 'name',
-  applied: 'applied'
-};
-
-exports.Prisma.Django_sessionScalarFieldEnum = {
-  session_key: 'session_key',
-  session_data: 'session_data',
-  expire_date: 'expire_date'
-};
-
-exports.Prisma.Order_detailsScalarFieldEnum = {
-  id: 'id',
-  quantity: 'quantity',
-  unit_price: 'unit_price',
-  created_at: 'created_at',
-  updated_at: 'updated_at',
-  order_id: 'order_id',
-  product_id: 'product_id'
-};
-
-exports.Prisma.OrdersScalarFieldEnum = {
-  id: 'id',
-  registration_date: 'registration_date',
-  status: 'status',
-  created_at: 'created_at',
-  updated_at: 'updated_at',
-  customer_id: 'customer_id'
-};
-
-exports.Prisma.ProductsScalarFieldEnum = {
+exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
   price: 'price',
   stock: 'stock',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  registrationDate: 'registrationDate',
+  status: 'status',
+  customerId: 'customerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderDetailsScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  orderId: 'orderId',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -239,27 +165,12 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 
 exports.Prisma.ModelName = {
-  auth_group: 'auth_group',
-  auth_group_permissions: 'auth_group_permissions',
-  auth_permission: 'auth_permission',
-  auth_user: 'auth_user',
-  auth_user_groups: 'auth_user_groups',
-  auth_user_user_permissions: 'auth_user_user_permissions',
-  customers: 'customers',
-  django_admin_log: 'django_admin_log',
-  django_content_type: 'django_content_type',
-  django_migrations: 'django_migrations',
-  django_session: 'django_session',
-  order_details: 'order_details',
-  orders: 'orders',
-  products: 'products'
+  Customer: 'Customer',
+  Product: 'Product',
+  Order: 'Order',
+  OrderDetails: 'OrderDetails'
 };
 
 /**

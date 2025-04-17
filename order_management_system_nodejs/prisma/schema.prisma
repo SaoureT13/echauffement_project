@@ -8,178 +8,105 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model auth_group {
-  id                     Int                      @id @default(autoincrement())
-  name                   String                   @unique @db.VarChar(150)
-  auth_group_permissions auth_group_permissions[]
-  auth_user_groups       auth_user_groups[]
+model Customer {
+  id               Int      @id @default(autoincrement())
+  name             String   @db.VarChar(150)
+  email            String   @unique
+  address          String   @db.VarChar(255)
+  registrationDate DateTime @map("registration_date")
+  createdAt        DateTime @map("created_at")
+  updatedAt        DateTime @default(now()) @map("updated_at")
+  orders           Order[]
 
-  @@index([name], map: "auth_group_name_a6ea08ec_like")
+  @@map("customers")
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model auth_group_permissions {
-  id              BigInt          @id @default(autoincrement())
-  group_id        Int
-  permission_id   Int
-  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_group_permissio_permission_id_84c5c92e_fk_auth_perm")
-  auth_group      auth_group      @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_group_permissions_group_id_b120cbf9_fk_auth_group_id")
+model Product {
+  id           Int            @id @default(autoincrement())
+  name         String         @db.VarChar(255)
+  price        Float
+  stock        Int
+  createdAt    DateTime       @map("created_at")
+  updatedAt    DateTime       @default(now()) @map("updated_at")
+  orderDetails OrderDetails[]
 
-  @@unique([group_id, permission_id], map: "auth_group_permissions_group_id_permission_id_0cd325b0_uniq")
-  @@index([group_id], map: "auth_group_permissions_group_id_b120cbf9")
-  @@index([permission_id], map: "auth_group_permissions_permission_id_84c5c92e")
+  @@map("products")
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model auth_permission {
-  id                         Int                          @id @default(autoincrement())
-  name                       String                       @db.VarChar(255)
-  content_type_id            Int
-  codename                   String                       @db.VarChar(100)
-  auth_group_permissions     auth_group_permissions[]
-  django_content_type        django_content_type          @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_permission_content_type_id_2f476e4b_fk_django_co")
-  auth_user_user_permissions auth_user_user_permissions[]
+model Order {
+  id               Int            @id @default(autoincrement())
+  registrationDate DateTime       @map("registration_date")
+  status           String         @default("pending") @db.VarChar(100)
+  customerId       Int            @map("customer_id")
+  createdAt        DateTime       @map("created_at")
+  updatedAt        DateTime       @default(now()) @map("updated_at")
+  customer         Customer       @relation(fields: [customerId], references: [id])
+  orderDetails     OrderDetails[]
 
-  @@unique([content_type_id, codename], map: "auth_permission_content_type_id_codename_01ab375a_uniq")
-  @@index([content_type_id], map: "auth_permission_content_type_id_2f476e4b")
+  @@map("orders")
 }
 
-model auth_user {
-  id                         Int                          @id @default(autoincrement())
-  password                   String                       @db.VarChar(128)
-  last_login                 DateTime?                    @db.Timestamptz(6)
-  is_superuser               Boolean
-  username                   String                       @unique @db.VarChar(150)
-  first_name                 String                       @db.VarChar(150)
-  last_name                  String                       @db.VarChar(150)
-  email                      String                       @db.VarChar(254)
-  is_staff                   Boolean
-  is_active                  Boolean
-  date_joined                DateTime                     @db.Timestamptz(6)
-  auth_user_groups           auth_user_groups[]
-  auth_user_user_permissions auth_user_user_permissions[]
-  django_admin_log           django_admin_log[]
+model OrderDetails {
+  id        Int      @id @default(autoincrement())
+  productId Int      @map("product_id")
+  orderId   Int      @map("order_id")
+  quantity  Int
+  unitPrice Float    @map("unit_price")
+  createdAt DateTime @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  product   Product  @relation(fields: [productId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id])
 
-  @@index([username], map: "auth_user_username_6821ab7c_like")
+  @@map("order_details")
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model auth_user_groups {
-  id         BigInt     @id @default(autoincrement())
-  user_id    Int
-  group_id   Int
-  auth_group auth_group @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_user_groups_group_id_97559544_fk_auth_group_id")
-  auth_user  auth_user  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_user_groups_user_id_6a12ed8b_fk_auth_user_id")
+// model customers {
+//   id                BigInt   @id @default(autoincrement())
+//   name              String   @db.VarChar(150)
+//   email             String   @db.VarChar(254)
+//   address           String   @db.VarChar(255)
+//   registration_date DateTime @db.Timestamptz(6)
+//   created_at        DateTime @db.Timestamptz(6)
+//   updated_at        DateTime @db.Timestamptz(6)
+//   orders            orders[]
+// }
 
-  @@unique([user_id, group_id], map: "auth_user_groups_user_id_group_id_94350c0c_uniq")
-  @@index([group_id], map: "auth_user_groups_group_id_97559544")
-  @@index([user_id], map: "auth_user_groups_user_id_6a12ed8b")
-}
+// /// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+// model order_details {
+//   id         BigInt   @id @default(autoincrement())
+//   quantity   Int
+//   unit_price Float
+//   created_at DateTime @db.Timestamptz(6)
+//   updated_at DateTime @db.Timestamptz(6)
+//   order_id   BigInt
+//   product_id BigInt
+//   orders     orders   @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "order_details_order_id_9401d97b_fk_orders_id")
+//   products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "order_details_product_id_a3b1bac1_fk_products_id")
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model auth_user_user_permissions {
-  id              BigInt          @id @default(autoincrement())
-  user_id         Int
-  permission_id   Int
-  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm")
-  auth_user       auth_user       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id")
+//   @@index([order_id], map: "order_details_order_id_9401d97b")
+//   @@index([product_id], map: "order_details_product_id_a3b1bac1")
+// }
 
-  @@unique([user_id, permission_id], map: "auth_user_user_permissions_user_id_permission_id_14a6b632_uniq")
-  @@index([permission_id], map: "auth_user_user_permissions_permission_id_1fbb5f2c")
-  @@index([user_id], map: "auth_user_user_permissions_user_id_a95ead1b")
-}
+// /// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+// model orders {
+//   id                BigInt          @id @default(autoincrement())
+//   registration_date DateTime        @db.Timestamptz(6)
+//   status            String          @db.VarChar(100)
+//   created_at        DateTime        @db.Timestamptz(6)
+//   updated_at        DateTime        @db.Timestamptz(6)
+//   customer_id       BigInt
+//   order_details     order_details[]
+//   customers         customers       @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "orders_customer_id_b7016332_fk_customers_id")
 
-model customers {
-  id                BigInt   @id @default(autoincrement())
-  name              String   @db.VarChar(150)
-  email             String   @db.VarChar(254)
-  address           String   @db.VarChar(255)
-  registration_date DateTime @db.Timestamptz(6)
-  created_at        DateTime @db.Timestamptz(6)
-  updated_at        DateTime @db.Timestamptz(6)
-  orders            orders[]
-}
+//   @@index([customer_id], map: "orders_customer_id_b7016332")
+// }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model django_admin_log {
-  id                  Int                  @id @default(autoincrement())
-  action_time         DateTime             @db.Timestamptz(6)
-  object_id           String?
-  object_repr         String               @db.VarChar(200)
-  action_flag         Int                  @db.SmallInt
-  change_message      String
-  content_type_id     Int?
-  user_id             Int
-  django_content_type django_content_type? @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_content_type_id_c4bce8eb_fk_django_co")
-  auth_user           auth_user            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_user_id_c564eba6_fk_auth_user_id")
-
-  @@index([content_type_id], map: "django_admin_log_content_type_id_c4bce8eb")
-  @@index([user_id], map: "django_admin_log_user_id_c564eba6")
-}
-
-model django_content_type {
-  id               Int                @id @default(autoincrement())
-  app_label        String             @db.VarChar(100)
-  model            String             @db.VarChar(100)
-  auth_permission  auth_permission[]
-  django_admin_log django_admin_log[]
-
-  @@unique([app_label, model], map: "django_content_type_app_label_model_76bd3d3b_uniq")
-}
-
-model django_migrations {
-  id      BigInt   @id @default(autoincrement())
-  app     String   @db.VarChar(255)
-  name    String   @db.VarChar(255)
-  applied DateTime @db.Timestamptz(6)
-}
-
-model django_session {
-  session_key  String   @id @db.VarChar(40)
-  session_data String
-  expire_date  DateTime @db.Timestamptz(6)
-
-  @@index([expire_date], map: "django_session_expire_date_a5c62663")
-  @@index([session_key], map: "django_session_session_key_c0390e0f_like")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model order_details {
-  id         BigInt   @id @default(autoincrement())
-  quantity   Int
-  unit_price Float
-  created_at DateTime @db.Timestamptz(6)
-  updated_at DateTime @db.Timestamptz(6)
-  order_id   BigInt
-  product_id BigInt
-  orders     orders   @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "order_details_order_id_9401d97b_fk_orders_id")
-  products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "order_details_product_id_a3b1bac1_fk_products_id")
-
-  @@index([order_id], map: "order_details_order_id_9401d97b")
-  @@index([product_id], map: "order_details_product_id_a3b1bac1")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model orders {
-  id                BigInt          @id @default(autoincrement())
-  registration_date DateTime        @db.Timestamptz(6)
-  status            String          @db.VarChar(100)
-  created_at        DateTime        @db.Timestamptz(6)
-  updated_at        DateTime        @db.Timestamptz(6)
-  customer_id       BigInt
-  order_details     order_details[]
-  customers         customers       @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "orders_customer_id_b7016332_fk_customers_id")
-
-  @@index([customer_id], map: "orders_customer_id_b7016332")
-}
-
-model products {
-  id            BigInt          @id @default(autoincrement())
-  name          String          @db.VarChar(255)
-  price         Float
-  stock         Int
-  created_at    DateTime        @db.Timestamptz(6)
-  updated_at    DateTime        @db.Timestamptz(6)
-  order_details order_details[]
-}
+// model products {
+//   id            BigInt          @id @default(autoincrement())
+//   name          String          @db.VarChar(255)
+//   price         Float
+//   stock         Int
+//   created_at    DateTime        @db.Timestamptz(6)
+//   updated_at    DateTime        @db.Timestamptz(6)
+//   order_details order_details[]
+// }

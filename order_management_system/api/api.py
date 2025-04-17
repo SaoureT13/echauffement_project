@@ -5,36 +5,6 @@ from datetime import datetime
 api = NinjaAPI()
 
 
-# @api.get("/customers", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
-# def retrieve_customers(request):
-#     try:
-#         customers = Customer.objects.all()
-#         for customer in customers:
-#             customer.count_orders = customer.orders.count()
-
-#         return 200, {
-#             "code": 200,
-#             "description": "Customers succesfully retrieve",
-#             "data": customers,
-#         }
-#     except Exception as e:
-#         return 400, {"code": 400, "description": str(e)}
-
-
-# @api.get("/products", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
-# def retrieve_products(request):
-#     try:
-#         products = Product.objects.all()
-
-#         return 200, {
-#             "code": 200,
-#             "description": "Products succesfully retrieve",
-#             "data": products,
-#         }
-#     except Exception as e:
-#         return 400, {"code": 400, "description": str(e)}
-
-
 @api.post("/customers", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
 def create_customer(request, payload: CustomerSchemaIn):
     try:
@@ -62,18 +32,18 @@ def create_customer(request, payload: CustomerSchemaIn):
         return 400, {"code": 400, "description": str(e)}
 
 
-#TODO: Modification en fonction du comportement de la vue final
+# TODO: Modification en fonction du comportement de la vue final
 @api.post(
-    "/orders",
+    "customers/{id}/orders",
     response={
         200: SuccessResponseSchema,
         400: ErrorResponseSchema,
         404: ErrorResponseSchema,
     },
 )
-def create_order(request, payload: OrderSchemaIn):
+def create_order(request, id: int, payload: OrderSchemaIn):
     try:
-        customer = Customer.objects.get(pk=payload.customer_id)
+        customer = Customer.objects.get(pk=id)
         order = Order.objects.create(
             registration_date=datetime.now(),
             customer_id=customer.id,
@@ -167,7 +137,7 @@ def delete_order(request, id: int):
         return 404, {"code": 404, "description": str(e)}
     except Exception as e:
         return 400, {"code": 400, "description": str(e)}
-    
+
 
 @api.delete(
     "/products/{id}",
