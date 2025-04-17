@@ -5,34 +5,34 @@ from datetime import datetime
 api = NinjaAPI()
 
 
-@api.get("/customers", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
-def retrieve_customers(request):
-    try:
-        customers = Customer.objects.all()
-        for customer in customers:
-            customer.count_orders = customer.orders.count()
+# @api.get("/customers", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
+# def retrieve_customers(request):
+#     try:
+#         customers = Customer.objects.all()
+#         for customer in customers:
+#             customer.count_orders = customer.orders.count()
 
-        return 200, {
-            "code": 200,
-            "description": "Customers succesfully retrieve",
-            "data": customers,
-        }
-    except Exception as e:
-        return 400, {"code": 400, "description": str(e)}
+#         return 200, {
+#             "code": 200,
+#             "description": "Customers succesfully retrieve",
+#             "data": customers,
+#         }
+#     except Exception as e:
+#         return 400, {"code": 400, "description": str(e)}
 
 
-@api.get("/products", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
-def retrieve_products(request):
-    try:
-        products = Product.objects.all()
+# @api.get("/products", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
+# def retrieve_products(request):
+#     try:
+#         products = Product.objects.all()
 
-        return 200, {
-            "code": 200,
-            "description": "Products succesfully retrieve",
-            "data": products,
-        }
-    except Exception as e:
-        return 400, {"code": 400, "description": str(e)}
+#         return 200, {
+#             "code": 200,
+#             "description": "Products succesfully retrieve",
+#             "data": products,
+#         }
+#     except Exception as e:
+#         return 400, {"code": 400, "description": str(e)}
 
 
 @api.post("/customers", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
@@ -62,6 +62,7 @@ def create_customer(request, payload: CustomerSchemaIn):
         return 400, {"code": 400, "description": str(e)}
 
 
+#TODO: Modification en fonction du comportement de la vue final
 @api.post(
     "/orders",
     response={
@@ -94,19 +95,30 @@ def create_order(request, payload: OrderSchemaIn):
             else:
                 products_that_not_exist.append(product_item.id)
 
-        # if products_that_not_exist:
-        #     return 400, {
-        #         "code": 400,
-        #         "description": "Some products do not exist or have insufficient stock",
-        #         "missing_products": products_that_not_exist,
-        #     }
-
         return 200, {
             "code": 200,
             "description": "Order successfully registered",
+            "missing_products": (
+                products_that_not_exist if products_that_not_exist else None
+            ),
         }
     except Customer.DoesNotExist as e:
         return 404, {"code": 404, "description": str(e)}
+    except Exception as e:
+        return 400, {"code": 400, "description": str(e)}
+
+
+@api.post("/products", response={200: SuccessResponseSchema, 400: ErrorResponseSchema})
+def create_product(request, payload: ProductSchemaIn):
+    try:
+        Product.objects.create(
+            name=payload.name, stock=payload.stock, price=payload.price
+        )
+
+        return 200, {
+            "code": 200,
+            "description": "Product successfully registered",
+        }
     except Exception as e:
         return 400, {"code": 400, "description": str(e)}
 
@@ -150,6 +162,29 @@ def delete_order(request, id: int):
         return 200, {
             "code": 200,
             "description": "Order successfully deleted",
+        }
+    except Customer.DoesNotExist as e:
+        return 404, {"code": 404, "description": str(e)}
+    except Exception as e:
+        return 400, {"code": 400, "description": str(e)}
+    
+
+@api.delete(
+    "/products/{id}",
+    response={
+        200: SuccessResponseSchema,
+        400: ErrorResponseSchema,
+        404: ErrorResponseSchema,
+    },
+)
+def delete_product(request, id: int):
+    try:
+        product = Product.objects.get(pk=id)
+        product.delete()
+
+        return 200, {
+            "code": 200,
+            "description": "Product successfully deleted",
         }
     except Customer.DoesNotExist as e:
         return 404, {"code": 404, "description": str(e)}

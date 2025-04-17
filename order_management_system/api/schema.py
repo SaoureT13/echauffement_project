@@ -22,7 +22,7 @@ class ProductSchemaIn(ModelSchema):
     class Meta:
         model = Product
         fields = "__all__"
-        exclude = ["id"]
+        exclude = ["id", "created_at", "updated_at"]
 
 
 class ProductSchemaOut(ModelSchema):
@@ -66,6 +66,10 @@ class OrderDetailsSchemaOut(ModelSchema):
         fields = "__all__"
 
 
+class MissingProductsSchema(Schema):
+    missing_products: List[int] = None
+
+
 class SuccessResponseSchema(Schema):
     code: int
     description: str
@@ -76,6 +80,7 @@ class SuccessResponseSchema(Schema):
         | List[CustomerSchemaOut]
         | List[ProductSchemaOut]
     ] = None
+    missing_products: Optional[List[int]] = None
 
 
 class ErrorResponseSchema(Schema):
