@@ -1,5 +1,5 @@
 <?php
-$pdo = new PDO("pgsql:host=localhost;database=order_management_system_db", "teddy_admin", "password");
+$pdo = new PDO("pgsql:host=localhost;dbname=order_management_system_db;user=teddy_admin;password=password");
 
 header('Content-Type: application/xml');
 $xml = new SimpleXMLElement('<customers/>');
@@ -8,36 +8,57 @@ $customers = $pdo->query("SELECT * FROM customers")->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ($customers as $customer) {
     $customerXML = $xml->addChild("customer");
-    $customerXML->addChild("id", $customer['id']);
-    $customerXML->addChild('name', $customer['name']);
-    $customerXML->addChild('email', $customer['email']);
-    $customerXML->addChild('address', $customer['address']);
-    $customerXML->addChild('registration_date', $customer['registration_date']);
-    $customerXML->addChild('created_at', $customer['created_at']);
-    $customerXML->addChild('updated_at', $customer['updated_at']);
+    $customerXML->addChild("id", htmlspecialchars($customer['id']));
+    $customerXML->addChild('name', htmlspecialchars($customer['name']));
+    $customerXML->addChild('email', htmlspecialchars($customer['email']));
+    $customerXML->addChild('address', htmlspecialchars($customer['address']));
+    $customerXML->addChild('registration_date', htmlspecialchars($customer['registration_date']));
+    $customerXML->addChild('created_at', htmlspecialchars($customer['created_at']));
+    $customerXML->addChild('updated_at', htmlspecialchars($customer['updated_at']));
 
-    $ordersStmt = $pdo->prepare("SELECT * FROM orders WHERE id = ?");
-    $ordersStmt->execute($customer['id']);
+
+    $ordersStmt = $pdo->prepare("SELECT * FROM orders WHERE customer_id = ?");
+    $ordersStmt->execute([$customer['id']]);
     $orders = $ordersStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $ordersXML =$customerXML->addChild("orders");
-    
-    foreach($orders as $order){
-        $ordersXML->addChild("id", $order['id']);
-        $ordersXML->addChild("registration_date", $order['registration_date']);
-        $ordersXML->addChild("status", $order['status']);
-        $ordersXML->addChild("created_at", $order['created_at']);
-        $ordersXML->addChild("updated_at", $order['updated_at']);
-        $ordersXML->addChild("customer_id", $order['customer_id']);
+    if (count($orders) > 0) {
+        $ordersXML = $customerXML->addChild("orders");
 
-        $orderDetailsStmt = $pdo->prepare("SELECT * FROM order_details WHERE ?");
-        $orderDetailsStmt->execute($order['id']);
-        $orderDetails = $orderDetailsStmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($orders as $order) {
+            $orderXML = $ordersXML->addChild('order');
+            $orderXML->addChild("id", $order['id']);
+            $orderXML->addChild("registration_date", $order['registration_date']);
+            $orderXML->addChild("status", $order['status']);
+            $orderXML->addChild("created_at", $order['created_at']);
+            $orderXML->addChild("updated_at", $order['updated_at']);
+            $orderXML->addChild("customer_id", $order['customer_id']);
 
-        $orderDetailsXML = $ordersXML->addChild("products");
-        foreach($orderDetails as $details){
-            $orderDetailsXML->addChild("id", )
+            $orderDetailsStmt = $pdo->prepare("SELECT * FROM order_details WHERE order_id = ?");
+            $orderDetailsStmt->execute([$order['id']]);
+            $orderDetails = $orderDetailsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+            if (count($orderDetails) > 0) {
+                $orderDetailsXML = $orderXML->addChild("details");
+                foreach ($orderDetails as $details) {
+                    // $details = $orderDetailsXML->addChild("details")
+
+
+
+                    $productStmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
+                    $productStmt->execute([$details['product_id']]);
+                    $product = $productStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    $productXML = $orderDetailsXML->addChild("product");
+                    $productXML->addChild("orderDetailsId", $details["id"]);
+                    $productXML->addChild("quantity", $details["quantity"]);
+                    $productXML->addChild("id", $product[0]["id"]);
+                    $productXML->addChild("name", $product[0]["name"]);
+                    $productXML->addChild("price", $product[0]["price"]);
+                }
+            }
         }
     }
-    
 }
+
+echo $xml->asXML();
