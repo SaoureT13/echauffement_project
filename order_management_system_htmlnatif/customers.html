@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css?family=Outfit:100,200,300,regular,500,600,700,800,900"
+        rel="stylesheet" />
+    <!-- Tom Select CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet" />
+
+    <!-- Tom Select JS -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+    <style type="text/tailwindcss">
+        @theme {
+      --font-outfit: Outfit, sans-serif;
+    }
+
+    .ts-control{
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.5rem !important;
+        padding: .5rem !important;
+        background-color: white !important;
+        font-size: 16px !important; 
+        transition: border-color 0.2s ease-in-out !important;
+    }
+
+    .swal2-popup {
+  font-family: Outfit, serif;
+}
+  </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="max-w-screen-xl mx-auto p-6 font-outfit">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-6 mb-6 border-b border-gray-300">
+                <div class="text-2xl font-bold font-outfit ">GestionPro | <span class="capitalize font-[200] text-xl"
+                        id="title">Register customer</span></div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-8">
+                <!-- Left: Form -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow">
+                    <div class="flex items-center gap-2 text-gray-800 font-semibold mb-4 text-2xl">
+                        General Information
+                    </div>
+
+                    <form method="post" action="http://localhost:8000/api/customers" id="form">
+                        <div class="mb-4 grid grid-cols-2 gap-4">
+                            <label class=" mb-1 text-md capitalize">Name</label>
+                            <div>
+                                <input type="text" value="" id="name" name="name" placeholder="Customer's Name..."
+                                    class="w-full border-gray-300 border-1 rounded-lg p-2">
+                            </div>
+                        </div>
+
+                        <div class="mb-4 grid grid-cols-2 gap-4">
+                            <label class="block mb-1 text-md capitalize">Phone</label>
+                            <div>
+                                <input type="text" value="" id="phone" name="phone" placeholder="Customer's phone..."
+                                    class="w-full rounded-lg border-gray-300 border-1 p-2">
+                            </div>
+                        </div>
+
+                        <div class="mb-4 grid grid-cols-2 gap-4">
+                            <label class="block mb-1 text-md capitalize">Email</label>
+                            <div>
+                                <input type="text" value="" id="email" name="email" placeholder="Customer's Email..."
+                                    class="w-full rounded-lg border-gray-300 border-1 p-2">
+                            </div>
+                        </div>
+
+                        <div class="mb-4 grid grid-cols-2 gap-4">
+                            <label class="block mb-1 text-md capitalize">Address</label>
+                            <div>
+                                <input type="text" value="" id="address" name="address"
+                                    placeholder="Customer's Address..."
+                                    class="w-full rounded-lg border-gray-300 border-1 p-2">
+                            </div>
+                        </div>
+
+
+
+                        <div id="order-section">
+                            <h4 class="text-2xl text-gray-800 mb-4 font-bold">Initialize an order (optional)</h4>
+                            <div class="mb-4 grid grid-cols-2 gap-4">
+                                <label for="" class="block mb-1 text-md capitalize">Select product</label>
+
+
+                                <div class="">
+                                    <select id="select-tags" name="selectedProduct[]" multiple
+                                        data-placeholder="Select product" class="form-control">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3 mt-14">
+                            <!-- <button class="text-red-500 hover:underline cursor-pointer">Delete</button> -->
+                            <button class="text-gray-500 hover:underline cursor-pointer"
+                                onclick="history.back()">Cancel</button>
+                            <button type="submit"
+                                class="bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 cursor-pointer">Save</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script type="module" src="./src/customers_js_script/customers.js"></script>
+
+    <script>
+        new TomSelect("#select-tags", {
+            plugins: ['remove_button'],
+            create: true,
+            load: function (query, callback) {
+                if (!query.length) return callback();
+                fetch(`http://localhost:3000/api/products?name=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(json => {
+                        callback(json.data.products.map(product => ({
+                            value: product.id,
+                            text: product.name,
+                            price: product.price
+                        })));
+                    }).catch(() => {
+                        callback();
+                    });
+            },
+            render: {
+                option: function (data, escape) {
+                    return `<div class="flex justify-between"><span>${escape(data.text)}</span><span class="text-muted">$${escape(data.price)}</span></div>`;
+                },
+                item: function (data, escape) {
+                    return `<div>
+                ${escape(data.text)}
+                <input type="hidden" name="selectedProduct[]" value="${escape(data.value)}">
+            </div>`;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-(%&(=d@lvn4he)6e9gjypcr8ye6qsdekx19&6gznfo38dny-)z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.252.22']
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "192.168.252.22"]
 
 
 # Application definition
@@ -53,9 +53,8 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Allow requests from Next.js development server
-]
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 ROOT_URLCONF = "order_management_system.urls"
 
@@ -87,7 +86,7 @@ DATABASES = {
         "USER": "teddy_admin",
         "PASSWORD": "password",
         "HOST": "127.0.0.1",
-        "PORT": "5432"
+        "PORT": "5432",
     }
 }
 

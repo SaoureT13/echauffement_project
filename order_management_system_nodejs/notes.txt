@@ -1,0 +1,7 @@
+
+Transformer le retour de la requete en tableau si ce n'est pas déjà un tableau
+// let existingProductIds = Array.isArray(pgArrayRaw)
+//     ? pgArrayRaw
+//     : pgArrayRaw
+//     ? pgArrayRaw.replace(/[{}]/g, "").split(",").map(Number)
+//     : [];

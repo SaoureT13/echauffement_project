@@ -3,13 +3,19 @@ import Root from "./routes/Root";
 import Orders from "./routes/Orders";
 import Products from "./routes/Products";
 import Customers from "./routes/Customers";
-import "./App.css"
+import "./App.css";
+import { Toaster } from "react-hot-toast";
 
 function App() {
     const router = createBrowserRouter([
         {
             path: "/",
-            element: <Root />,
+            element: (
+                <>
+                    <Root />
+                    <Toaster />
+                </>
+            ),
             children: [
                 {
                     path: "/orders",

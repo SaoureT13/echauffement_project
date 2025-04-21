@@ -6,63 +6,103 @@ const db = require("../db");
 
 exports.updateCustomer = async (req, res) => {
     const customerId = req.params.id;
-    const { name, address, email } = req.body;
-    try {
-        const customer = await prisma.customer.findUnique({
-            where: {
-                id: Number(customerId),
-            },
-        });
+    const { name, address, email, phone, method } = req.body;
 
-        if (!customer) {
+    let result = null;
+    try {
+        result = await db.query("SELECT * FROM customers WHERE id = $1", [
+            Number(customerId),
+        ]);
+
+        if (result.rows.length === 0) {
             return res.status(404).json({
                 code: 404,
                 description: "Customer not found",
             });
         }
 
-        const customerUpdated = await prisma.customer.update({
-            where: { id: Number(customerId) },
-            data: {
-                name: name !== undefined ? name : customer.name,
-                address: address !== undefined ? address : customer.address,
-                email: email !== undefined ? email : customer.email,
-            },
-        });
+        await db.query(
+            `
+            UPDATE customers
+            SET 
+                name = $1,
+                address = $2,
+                email = $3,
+                phone = $4
+            WHERE id = $5
+            `,
+            [
+                name ? name : result.rows[0].name,
+                address ? address : result.rows[0].address,
+                email ? email : result.rows[0].email,
+                phone ? phone : result.rows[0].phone,
+                result.rows[0].id,
+            ]
+        );
 
-        return res.status(200).json({
-            code: 200,
-            description: "Customer successfully updated",
-            data: customerUpdated,
-        });
+        result = await db.query("SELECT * FROM customers WHERE id = $1", [
+            Number(customerId),
+        ]);
+
+        if (method && method == "ajax") {
+            return res.status(200).json({
+                code: 200,
+                description: "Customer successfully updated",
+                data: result.rows[0],
+            });
+        }
+
+        return res.redirect("http://localhost:5173/customers");
     } catch (error) {
-        res.status(400).json({ code: 400, description: error.message });
+        res.status(500).json({ code: 500, description: error.message });
     }
 };
 
 exports.getAllCustomers = async (req, res) => {
+    const { name } = req.query;
+    const limit = Number(req.query.limit) || null;
+    const page = Number(req.query.page) || null;
+    const offset = (page - 1) * limit;
+    let result = null;
     try {
-        // const result = await db.query("SELECT * FROM customers");
-        const customers = await prisma.customer.findMany({
-            include: {
-                orders: true,
-            },
-        });
+        result = await db.query(
+            `
+            SELECT c.*, COUNT(o.id) AS orders_count
+            FROM customers c 
+            LEFT JOIN orders o ON o.customer_id = c.id 
+            WHERE 
+                ($1::text IS NULL OR c.name ILIKE $1)
+            GROUP BY c.id
+            LIMIT $2 OFFSET $3
+            `,
+            [name ? `%${name}%` : null, limit, offset]
+        );
+        const customers = result.rows;
 
-        const formattedCustomers = customers.map((customer) => ({
-            id: customer.id,
-            name: customer.name,
-            email: customer.email,
-            address: customer.address,
-            registrationDate: customer.registrationDate,
-            createdAt: customer.createdAt,
-            updatedAt: customer.updatedAt,
-            orders_count: customer.orders.length,
-        }));
+        result = await db.query(
+            `
+            SELECT COUNT(*) as count
+            FROM customers c 
+            LEFT JOIN orders o ON o.customer_id = c.id 
+            WHERE 
+                ($1::text IS NULL OR name ILIKE $1)
+            `,
+            [name ? `%${name}%` : null]
+        );
+        const total = result.rows[0].count;
+
         res.status(200).json({
             code: 200,
             description: "Customers founded",
-            data: formattedCustomers,
+            data: {
+                customers: customers,
+                page: {
+                    currentPage: page,
+                    limit: limit,
+                    total: Number(total),
+                    totalPages: Math.ceil(Number(total) / limit),
+                },
+            },
         });
     } catch (error) {
         res.status(400).json({ code: 400, description: error.message });

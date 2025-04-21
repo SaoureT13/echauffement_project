@@ -1,4 +1,5 @@
 import { FileText, Store, UserRound } from "lucide-react";
+import toast from "react-hot-toast";
 import { Link, Outlet } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 
@@ -9,8 +10,11 @@ function Root() {
                 <div className="h-svh inset-y-0 fixed w-[17rem] z-10">
                     <div className="flex h-full w-full flex-col border-r">
                         <div className="p-2 px-4 py-6 mb-10">
-                            <Link to="/">
-                                <h1 class="text-3xl font-bold font-poppins">
+                            <Link to="/orders">
+                                <h1
+                                    className="text-3xl font-bold font-poppins"
+                                    onClick={() => toast("Hello World")}
+                                >
                                     GestionPro
                                 </h1>
                             </Link>

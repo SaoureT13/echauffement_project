@@ -122,7 +122,14 @@ exports.Prisma.CustomerScalarFieldEnum = {
   name: 'name',
   email: 'email',
   address: 'address',
-  registrationDate: 'registrationDate',
+  phone: 'phone',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CategoryScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -132,13 +139,13 @@ exports.Prisma.ProductScalarFieldEnum = {
   name: 'name',
   price: 'price',
   stock: 'stock',
+  categoryId: 'categoryId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.OrderScalarFieldEnum = {
   id: 'id',
-  registrationDate: 'registrationDate',
   status: 'status',
   customerId: 'customerId',
   createdAt: 'createdAt',
@@ -168,6 +175,7 @@ exports.Prisma.QueryMode = {
 
 exports.Prisma.ModelName = {
   Customer: 'Customer',
+  Category: 'Category',
   Product: 'Product',
   Order: 'Order',
   OrderDetails: 'OrderDetails'
