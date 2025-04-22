@@ -60,8 +60,8 @@ exports.updateCustomer = async (req, res) => {
 
 exports.getAllCustomers = async (req, res) => {
     const { name } = req.query;
-    const limit = Number(req.query.limit) || null;
-    const page = Number(req.query.page) || null;
+    const limit = Number(req.query.limit) || 20;
+    const page = Number(req.query.page) || 1;
     const offset = (page - 1) * limit;
     let result = null;
     try {

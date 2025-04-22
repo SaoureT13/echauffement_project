@@ -118,7 +118,7 @@ exports.getAllProducts = async (req, res) => {
 exports.updateProduct = async (req, res) => {
     try {
         const productId = req.params.id;
-        const { name, stock, price, category_id, _method } = req.body;
+        const { name, stock, price, category_id, method } = req.body;
 
         const product = await db.query(
             `
@@ -156,13 +156,25 @@ exports.updateProduct = async (req, res) => {
             ]
         );
 
-        const updatedProductData = updatedProduct.rows[0];
+        let updatedProductData = updatedProduct.rows[0];
 
-        if (_method && _method == "PUT") {
+        const category = await db.query(
+            `SELECT * FROM categories WHERE id = $1`,
+            [updatedProductData.category_id]
+        );
+
+        delete updatedProductData.category_id;
+
+        updatedProductData = {
+            ...updatedProductData,
+            category: category.rows[0],
+        };
+
+        if (method && method == "ajax") {
             return res.status(200).json({
                 code: 200,
                 description: "Product updated",
-                data: updatedProduct,
+                data: updatedProductData,
             });
         }
         return res.redirect("http://localhost:5173/products");

@@ -104,7 +104,7 @@ form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(form);
     if (id) {
-        formData.append("_method", "PUT");
+        formData.append("method", "ajax");
     } else {
         formData.append("method", "ajax");
     }
