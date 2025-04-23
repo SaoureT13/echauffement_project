@@ -8,7 +8,7 @@ function OrderCard({ order, onToggleStateModal, onChangeCurrentOrder }) {
                 onToggleStateModal();
                 onChangeCurrentOrder(order);
             }}
-            className="w-[260px] border-1 rounded-xl border-gray-300 p-4 
+            className="w-full border-1 rounded-xl border-gray-300 p-4 
             transition-all duration-200 ease-in-out 
             hover:shadow-lg hover:border-blue-200 hover:scale-[1.02] 
             cursor-pointer"
